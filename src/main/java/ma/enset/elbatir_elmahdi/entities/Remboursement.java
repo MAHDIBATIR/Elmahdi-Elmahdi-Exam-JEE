@@ -26,8 +26,4 @@ public class Remboursement {
     
     @ManyToOne
     private Credit credit;
-}
-
-enum RemboursementType {
-    MENSUALITE, REMBOURSEMENT_ANTICIPE
 } 

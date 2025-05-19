@@ -14,8 +14,4 @@ import lombok.NoArgsConstructor;
 public class CreditImmobilier extends Credit {
     @Enumerated(EnumType.STRING)
     private PropertyType propertyType; // Type of property: Apartment, House, or Commercial premises
-}
-
-enum PropertyType {
-    APPARTEMENT, MAISON, LOCAL_COMMERCIAL
 } 
