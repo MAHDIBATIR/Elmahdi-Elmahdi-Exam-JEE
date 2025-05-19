@@ -1,0 +1,345 @@
+\subsection{Test de la couche DAO}
+Pour tester la couche DAO, nous avons créé une classe de test qui alimente la base de données avec des données de test :
+\begin{lstlisting}[caption=Application de test de la couche DAO]
+package ma.enset.elbatir_elmahdi;
+
+import ma.enset.elbatir_elmahdi.entities.*;
+import ma.enset.elbatir_elmahdi.repositories.*;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+import java.util.Date;
+import java.util.stream.Stream;
+
+@SpringBootApplication
+public class CreditBancaireApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(CreditBancaireApplication.class, args);
+    }
+
+    @Bean
+    CommandLineRunner start(ClientRepository clientRepository,
+                           CreditRepository creditRepository,
+                           CreditPersonnelRepository creditPersonnelRepository,
+                           CreditImmobilierRepository creditImmobilierRepository,
+                           CreditProfessionnelRepository creditProfessionnelRepository,
+                           RemboursementRepository remboursementRepository,
+                           UserRepository userRepository,
+                           RoleRepository roleRepository) {
+        return args -> {
+            // Création des clients
+            Stream.of("Client1", "Client2", "Client3").forEach(name -> {
+                Client client = new Client();
+                client.setName(name);
+                client.setEmail(name.toLowerCase() + "@gmail.com");
+                clientRepository.save(client);
+            });
+
+            // Création des crédits personnels
+            Client client1 = clientRepository.findById(1L).orElse(null);
+            CreditPersonnel creditPersonnel = new CreditPersonnel();
+            creditPersonnel.setClient(client1);
+            creditPersonnel.setRequestDate(new Date());
+            creditPersonnel.setStatus(CreditStatus.EN_COURS);
+            creditPersonnel.setAmount(50000.0);
+            creditPersonnel.setDuration(24);
+            creditPersonnel.setInterestRate(4.5);
+            creditPersonnel.setMotif("Achat de voiture");
+            creditPersonnelRepository.save(creditPersonnel);
+
+            // Création des crédits immobiliers
+            Client client2 = clientRepository.findById(2L).orElse(null);
+            CreditImmobilier creditImmobilier = new CreditImmobilier();
+            creditImmobilier.setClient(client2);
+            creditImmobilier.setRequestDate(new Date());
+            creditImmobilier.setStatus(CreditStatus.ACCEPTE);
+            creditImmobilier.setAcceptanceDate(new Date());
+            creditImmobilier.setAmount(200000.0);
+            creditImmobilier.setDuration(240);
+            creditImmobilier.setInterestRate(2.5);
+            creditImmobilier.setPropertyType(PropertyType.APPARTEMENT);
+            creditImmobilierRepository.save(creditImmobilier);
+
+            // Création des crédits professionnels
+            Client client3 = clientRepository.findById(3L).orElse(null);
+            CreditProfessionnel creditProfessionnel = new CreditProfessionnel();
+            creditProfessionnel.setClient(client3);
+            creditProfessionnel.setRequestDate(new Date());
+            creditProfessionnel.setStatus(CreditStatus.EN_COURS);
+            creditProfessionnel.setAmount(100000.0);
+            creditProfessionnel.setDuration(48);
+            creditProfessionnel.setInterestRate(3.5);
+            creditProfessionnel.setMotif("Acquisition de matériel");
+            creditProfessionnel.setRaisonSociale("Entreprise ABC");
+            creditProfessionnelRepository.save(creditProfessionnel);
+
+            // Création des remboursements
+            Credit credit1 = creditRepository.findById(1L).orElse(null);
+            Remboursement remboursement1 = new Remboursement();
+            remboursement1.setCredit(credit1);
+            remboursement1.setDate(new Date());
+            remboursement1.setAmount(2000.0);
+            remboursement1.setType(RemboursementType.MENSUALITE);
+            remboursementRepository.save(remboursement1);
+
+            // Création des rôles
+            Role roleAdmin = new Role();
+            roleAdmin.setRoleName("ROLE_ADMIN");
+            roleRepository.save(roleAdmin);
+
+            Role roleEmploye = new Role();
+            roleEmploye.setRoleName("ROLE_EMPLOYE");
+            roleRepository.save(roleEmploye);
+
+            Role roleClient = new Role();
+            roleClient.setRoleName("ROLE_CLIENT");
+            roleRepository.save(roleClient);
+
+            // Création des utilisateurs
+            User admin = new User();
+            admin.setUsername("admin");
+            admin.setPassword("$2a$10$iyH.Uiv1Rx67gBdEXIabqOHPzxBsfpjmC0zM9JMs6i4tU0ymvZZie"); // password: admin
+            admin.getRoles().add(roleAdmin);
+            userRepository.save(admin);
+
+            User employe = new User();
+            employe.setUsername("employe");
+            employe.setPassword("$2a$10$10.lLyY6aB.jxTG9l.8HzeRwX5QmP.IQDMNi4AcaX3mQFxVJYIUYy"); // password: employe
+            employe.getRoles().add(roleEmploye);
+            userRepository.save(employe);
+
+            User clientUser = new User();
+            clientUser.setUsername("client");
+            clientUser.setPassword("$2a$10$RlU/kbVqHPKN2hD5xJXcGOZ9.MTUxNRy4yXWxjOiQW3/AEf1YybQW"); // password: client
+            clientUser.getRoles().add(roleClient);
+            userRepository.save(clientUser);
+        };
+    }
+}
+\end{lstlisting}
+
+\subsection{Validation de la Base de Données}
+Après l'exécution des tests de la couche DAO, nous avons validé la création et le peuplement des tables dans la base de données. Voici les captures d'écran des tables créées :
+
+\subsubsection{Table Client}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{client_table.png}
+    \caption{Structure et données de la table Client}
+\end{figure}
+
+\subsubsection{Table Credit}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{credit_table.png}
+    \caption{Structure et données de la table Credit}
+\end{figure}
+
+\subsubsection{Table CreditPersonnel}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{credit_personnel_table.png}
+    \caption{Structure et données de la table CreditPersonnel}
+\end{figure}
+
+\subsubsection{Table CreditImmobilier}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{credit_immobilier_table.png}
+    \caption{Structure et données de la table CreditImmobilier}
+\end{figure}
+
+\subsubsection{Table CreditProfessionnel}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{credit_professionnel_table.png}
+    \caption{Structure et données de la table CreditProfessionnel}
+\end{figure}
+
+\subsubsection{Table Remboursement}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{remboursement_table.png}
+    \caption{Structure et données de la table Remboursement}
+\end{figure}
+
+\subsubsection{Table User et Role}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{user_role_tables.png}
+    \caption{Structure et données des tables User et Role}
+\end{figure}
+
+Ces captures d'écran montrent que :
+\begin{itemize}
+    \item Les tables ont été correctement créées avec leurs relations
+    \item Les données de test ont été insérées avec succès
+    \item Les contraintes de clés étrangères sont respectées
+    \item Les types de données sont appropriés pour chaque colonne
+\end{itemize}
+
+\section{Couche Service}
+\subsection{Création des DTOs}
+Les DTOs (Data Transfer Objects) sont utilisés pour transférer les données entre la couche service et la couche web. Voici l'implémentation des DTOs :
+
+\begin{lstlisting}[caption=DTO pour Client]
+package ma.enset.elbatir_elmahdi.dtos;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class ClientDTO {
+    private Long id;
+    private String name;
+    private String email;
+}
+\end{lstlisting}
+
+\begin{lstlisting}[caption=DTO pour Credit]
+package ma.enset.elbatir_elmahdi.dtos;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import ma.enset.elbatir_elmahdi.entities.CreditStatus;
+
+import java.util.Date;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class CreditDTO {
+    private Long id;
+    private Date requestDate;
+    private CreditStatus status;
+    private Date acceptanceDate;
+    private Double amount;
+    private Integer duration; // Duration in months
+    private Double interestRate;
+    private Long clientId;
+}
+\end{lstlisting}
+
+\subsection{Mappers}
+Les mappers sont utilisés pour convertir les entités en DTOs et vice versa. Voici un exemple d'implémentation de mapper :
+
+\begin{lstlisting}[caption=Mapper pour Client]
+package ma.enset.elbatir_elmahdi.mappers;
+
+import ma.enset.elbatir_elmahdi.dtos.ClientDTO;
+import ma.enset.elbatir_elmahdi.entities.Client;
+import org.springframework.stereotype.Component;
+
+@Component
+public class ClientMapper {
+    public ClientDTO fromClient(Client client) {
+        if (client == null) return null;
+        return new ClientDTO(
+                client.getId(),
+                client.getName(),
+                client.getEmail()
+        );
+    }
+
+    public Client fromClientDTO(ClientDTO clientDTO) {
+        if (clientDTO == null) return null;
+        Client client = new Client();
+        client.setId(clientDTO.getId());
+        client.setName(clientDTO.getName());
+        client.setEmail(clientDTO.getEmail());
+        return client;
+    }
+}
+\end{lstlisting}
+
+\subsection{Services}
+Les services définissent l'interface des opérations métier. Ils font le lien entre les contrôleurs et les repositories. Voici l'implémentation de l'interface de service pour les clients :
+
+\begin{lstlisting}[caption=Interface Service pour Client]
+package ma.enset.elbatir_elmahdi.services;
+
+import ma.enset.elbatir_elmahdi.dtos.ClientDTO;
+
+import java.util.List;
+
+public interface ClientService {
+    
+    // CRUD operations
+    ClientDTO saveClient(ClientDTO clientDTO);
+    ClientDTO getClient(Long id);
+    List<ClientDTO> getAllClients();
+    ClientDTO updateClient(ClientDTO clientDTO);
+    void deleteClient(Long id);
+    
+    // Additional operations
+    ClientDTO getClientByEmail(String email);
+}
+\end{lstlisting}
+
+\begin{lstlisting}[caption=Implémentation du Service Client]
+package ma.enset.elbatir_elmahdi.services.impl;
+
+import lombok.RequiredArgsConstructor;
+import ma.enset.elbatir_elmahdi.dtos.ClientDTO;
+import ma.enset.elbatir_elmahdi.entities.Client;
+import ma.enset.elbatir_elmahdi.mappers.ClientMapper;
+import ma.enset.elbatir_elmahdi.repositories.ClientRepository;
+import ma.enset.elbatir_elmahdi.services.ClientService;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Service
+@Transactional
+@RequiredArgsConstructor
+public class ClientServiceImpl implements ClientService {
+    private final ClientRepository clientRepository;
+    private final ClientMapper clientMapper;
+
+    @Override
+    public ClientDTO saveClient(ClientDTO clientDTO) {
+        Client client = clientMapper.fromClientDTO(clientDTO);
+        Client savedClient = clientRepository.save(client);
+        return clientMapper.fromClient(savedClient);
+    }
+
+    @Override
+    public ClientDTO getClient(Long id) {
+        Client client = clientRepository.findById(id).orElse(null);
+        return clientMapper.fromClient(client);
+    }
+
+    @Override
+    public List<ClientDTO> getAllClients() {
+        List<Client> clients = clientRepository.findAll();
+        return clients.stream()
+                .map(clientMapper::fromClient)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public ClientDTO updateClient(ClientDTO clientDTO) {
+        Client client = clientMapper.fromClientDTO(clientDTO);
+        Client updatedClient = clientRepository.save(client);
+        return clientMapper.fromClient(updatedClient);
+    }
+
+    @Override
+    public void deleteClient(Long id) {
+        clientRepository.deleteById(id);
+    }
+
+    @Override
+    public ClientDTO getClientByEmail(String email) {
+        Client client = clientRepository.findByEmail(email);
+        return clientMapper.fromClient(client);
+    }
+}
+\end{lstlisting}
