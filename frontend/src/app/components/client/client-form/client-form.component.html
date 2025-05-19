@@ -1,0 +1,101 @@
+<div class="container mt-4">
+  <h2>{{ isEditMode ? 'Modifier' : 'Ajouter' }} Client</h2>
+
+  <div *ngIf="loading" class="text-center">
+    <div class="spinner-border" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+
+  <div *ngIf="error" class="alert alert-danger">
+    {{ error }}
+  </div>
+
+  <form [formGroup]="clientForm" (ngSubmit)="onSubmit()" *ngIf="!loading || isEditMode">
+    <div class="row">
+      <div class="col-md-6 mb-3">
+        <label for="nom" class="form-label">Nom</label>
+        <input 
+          type="text" 
+          class="form-control" 
+          id="nom" 
+          formControlName="nom" 
+          [ngClass]="{ 'is-invalid': submitted && f['nom'].errors }"
+        >
+        <div *ngIf="submitted && f['nom'].errors" class="invalid-feedback">
+          <div *ngIf="f['nom'].errors['required']">Le nom est obligatoire</div>
+          <div *ngIf="f['nom'].errors['maxlength']">Le nom ne peut pas dépasser 50 caractères</div>
+        </div>
+      </div>
+
+      <div class="col-md-6 mb-3">
+        <label for="prenom" class="form-label">Prénom</label>
+        <input 
+          type="text" 
+          class="form-control" 
+          id="prenom" 
+          formControlName="prenom"
+          [ngClass]="{ 'is-invalid': submitted && f['prenom'].errors }"
+        >
+        <div *ngIf="submitted && f['prenom'].errors" class="invalid-feedback">
+          <div *ngIf="f['prenom'].errors['required']">Le prénom est obligatoire</div>
+          <div *ngIf="f['prenom'].errors['maxlength']">Le prénom ne peut pas dépasser 50 caractères</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-6 mb-3">
+        <label for="dateNaissance" class="form-label">Date de naissance</label>
+        <input 
+          type="date" 
+          class="form-control" 
+          id="dateNaissance" 
+          formControlName="dateNaissance"
+          [ngClass]="{ 'is-invalid': submitted && f['dateNaissance'].errors }"
+        >
+        <div *ngIf="submitted && f['dateNaissance'].errors" class="invalid-feedback">
+          <div *ngIf="f['dateNaissance'].errors['required']">La date de naissance est obligatoire</div>
+        </div>
+      </div>
+
+      <div class="col-md-6 mb-3">
+        <label for="telephone" class="form-label">Téléphone</label>
+        <input 
+          type="tel" 
+          class="form-control" 
+          id="telephone" 
+          formControlName="telephone"
+          [ngClass]="{ 'is-invalid': submitted && f['telephone'].errors }"
+        >
+        <div *ngIf="submitted && f['telephone'].errors" class="invalid-feedback">
+          <div *ngIf="f['telephone'].errors['required']">Le téléphone est obligatoire</div>
+          <div *ngIf="f['telephone'].errors['pattern']">Format de téléphone invalide</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mb-3">
+      <label for="email" class="form-label">Email</label>
+      <input 
+        type="email" 
+        class="form-control" 
+        id="email" 
+        formControlName="email"
+        [ngClass]="{ 'is-invalid': submitted && f['email'].errors }"
+      >
+      <div *ngIf="submitted && f['email'].errors" class="invalid-feedback">
+        <div *ngIf="f['email'].errors['required']">L'email est obligatoire</div>
+        <div *ngIf="f['email'].errors['email']">Format d'email invalide</div>
+      </div>
+    </div>
+
+    <div class="d-flex gap-2 mt-4">
+      <button type="submit" class="btn btn-primary" [disabled]="loading">
+        <span *ngIf="loading" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+        {{ isEditMode ? 'Mettre à jour' : 'Ajouter' }}
+      </button>
+      <a routerLink="/clients" class="btn btn-secondary">Annuler</a>
+    </div>
+  </form>
+</div> 

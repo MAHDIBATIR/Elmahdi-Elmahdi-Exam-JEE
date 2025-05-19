@@ -1,0 +1,18 @@
+main {
+  min-height: calc(100vh - 150px);
+  padding: 20px 0;
+}
+
+.navbar-brand {
+  font-weight: 600;
+}
+
+.nav-link.active {
+  font-weight: 500;
+}
+
+footer {
+  position: relative;
+  bottom: 0;
+  width: 100%;
+} 

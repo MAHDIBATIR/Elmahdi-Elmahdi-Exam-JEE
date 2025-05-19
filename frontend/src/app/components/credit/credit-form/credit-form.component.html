@@ -1,0 +1,234 @@
+<div class="container mt-4">
+  <h2>Nouveau Crédit</h2>
+
+  <div *ngIf="loading" class="text-center">
+    <div class="spinner-border" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+
+  <div *ngIf="error" class="alert alert-danger">
+    {{ error }}
+  </div>
+
+  <form *ngIf="!loading" (ngSubmit)="onSubmit()" class="credit-form">
+    <!-- Informations générales -->
+    <div class="card mb-4">
+      <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">Informations générales</h5>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label for="montant" class="form-label">Montant du crédit (€)*</label>
+            <input 
+              type="number" 
+              class="form-control" 
+              id="montant" 
+              [formGroup]="creditForm"
+              formControlName="montant"
+              min="1000"
+            >
+            <div *ngIf="creditForm.get('montant')?.invalid && creditForm.get('montant')?.touched" class="text-danger small">
+              Le montant doit être supérieur à 1000€
+            </div>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label for="duree" class="form-label">Durée (en mois)*</label>
+            <input 
+              type="number" 
+              class="form-control" 
+              id="duree" 
+              [formGroup]="creditForm"
+              formControlName="duree"
+              min="1"
+            >
+            <div *ngIf="creditForm.get('duree')?.invalid && creditForm.get('duree')?.touched" class="text-danger small">
+              La durée doit être supérieure à 0
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label for="tauxInteret" class="form-label">Taux d'intérêt (%)*</label>
+            <input 
+              type="number" 
+              class="form-control" 
+              id="tauxInteret" 
+              [formGroup]="creditForm"
+              formControlName="tauxInteret"
+              step="0.01"
+              min="0"
+              max="100"
+            >
+            <div *ngIf="creditForm.get('tauxInteret')?.invalid && creditForm.get('tauxInteret')?.touched" class="text-danger small">
+              Le taux d'intérêt doit être compris entre 0 et 100
+            </div>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label for="date" class="form-label">Date*</label>
+            <input 
+              type="date" 
+              class="form-control" 
+              id="date" 
+              [formGroup]="creditForm"
+              formControlName="date"
+            >
+            <div *ngIf="creditForm.get('date')?.invalid && creditForm.get('date')?.touched" class="text-danger small">
+              La date est obligatoire
+            </div>
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label for="clientId" class="form-label">Client*</label>
+          <select 
+            class="form-select" 
+            id="clientId" 
+            [formGroup]="creditForm"
+            formControlName="clientId"
+            [disabled]="clientId !== undefined"
+          >
+            <option value="" disabled>Sélectionner un client</option>
+            <option *ngFor="let client of clients" [value]="client.id">
+              {{ client.prenom }} {{ client.nom }}
+            </option>
+          </select>
+          <div *ngIf="creditForm.get('clientId')?.invalid && creditForm.get('clientId')?.touched" class="text-danger small">
+            Veuillez sélectionner un client
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sélection du type de crédit -->
+    <div class="card mb-4">
+      <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">Type de crédit</h5>
+      </div>
+      <div class="card-body">
+        <div class="d-flex flex-wrap gap-3 mb-3">
+          <div *ngFor="let type of creditTypes" class="form-check">
+            <input 
+              class="form-check-input" 
+              type="radio" 
+              name="creditType" 
+              [id]="type.id" 
+              [value]="type.id"
+              [(ngModel)]="selectedCreditType"
+              [ngModelOptions]="{standalone: true}"
+            >
+            <label class="form-check-label" [for]="type.id">
+              {{ type.label }}
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Formulaire spécifique selon le type de crédit -->
+    <div *ngIf="selectedCreditType === 'immobilier'" class="card mb-4">
+      <div class="card-header bg-success text-white">
+        <h5 class="mb-0">Détails du crédit immobilier</h5>
+      </div>
+      <div class="card-body">
+        <div [formGroup]="immobilierForm">
+          <div class="mb-3">
+            <label for="montantAchat" class="form-label">Montant d'achat (€)*</label>
+            <input type="number" class="form-control" id="montantAchat" formControlName="montantAchat" min="1000">
+            <div *ngIf="immobilierForm.get('montantAchat')?.invalid && immobilierForm.get('montantAchat')?.touched" class="text-danger small">
+              Le montant d'achat doit être supérieur à 1000€
+            </div>
+          </div>
+          <div class="mb-3">
+            <label for="adresseBien" class="form-label">Adresse du bien*</label>
+            <textarea class="form-control" id="adresseBien" formControlName="adresseBien" rows="2"></textarea>
+            <div *ngIf="immobilierForm.get('adresseBien')?.invalid && immobilierForm.get('adresseBien')?.touched" class="text-danger small">
+              L'adresse du bien est obligatoire
+            </div>
+          </div>
+          <div class="mb-3">
+            <label for="superficieBien" class="form-label">Superficie du bien (m²)*</label>
+            <input type="number" class="form-control" id="superficieBien" formControlName="superficieBien" min="1">
+            <div *ngIf="immobilierForm.get('superficieBien')?.invalid && immobilierForm.get('superficieBien')?.touched" class="text-danger small">
+              La superficie doit être supérieure à 0
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="selectedCreditType === 'personnel'" class="card mb-4">
+      <div class="card-header bg-info text-white">
+        <h5 class="mb-0">Détails du crédit personnel</h5>
+      </div>
+      <div class="card-body">
+        <div [formGroup]="personnelForm">
+          <div class="mb-3">
+            <label for="motif" class="form-label">Motif du crédit*</label>
+            <textarea class="form-control" id="motif" formControlName="motif" rows="2"></textarea>
+            <div *ngIf="personnelForm.get('motif')?.invalid && personnelForm.get('motif')?.touched" class="text-danger small">
+              Le motif est obligatoire
+            </div>
+          </div>
+          <div class="mb-3">
+            <label for="revenuMensuel" class="form-label">Revenu mensuel (€)*</label>
+            <input type="number" class="form-control" id="revenuMensuel" formControlName="revenuMensuel" min="100">
+            <div *ngIf="personnelForm.get('revenuMensuel')?.invalid && personnelForm.get('revenuMensuel')?.touched" class="text-danger small">
+              Le revenu mensuel doit être supérieur à 100€
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="selectedCreditType === 'professionnel'" class="card mb-4">
+      <div class="card-header bg-warning text-dark">
+        <h5 class="mb-0">Détails du crédit professionnel</h5>
+      </div>
+      <div class="card-body">
+        <div [formGroup]="professionnelForm">
+          <div class="mb-3">
+            <label for="nomProjet" class="form-label">Nom du projet*</label>
+            <input type="text" class="form-control" id="nomProjet" formControlName="nomProjet">
+            <div *ngIf="professionnelForm.get('nomProjet')?.invalid && professionnelForm.get('nomProjet')?.touched" class="text-danger small">
+              Le nom du projet est obligatoire
+            </div>
+          </div>
+          <div class="mb-3">
+            <label for="secteurActivite" class="form-label">Secteur d'activité*</label>
+            <input type="text" class="form-control" id="secteurActivite" formControlName="secteurActivite">
+            <div *ngIf="professionnelForm.get('secteurActivite')?.invalid && professionnelForm.get('secteurActivite')?.touched" class="text-danger small">
+              Le secteur d'activité est obligatoire
+            </div>
+          </div>
+          <div class="mb-3">
+            <label for="chiffreAffaire" class="form-label">Chiffre d'affaire (€)*</label>
+            <input type="number" class="form-control" id="chiffreAffaire" formControlName="chiffreAffaire" min="0">
+            <div *ngIf="professionnelForm.get('chiffreAffaire')?.invalid && professionnelForm.get('chiffreAffaire')?.touched" class="text-danger small">
+              Le chiffre d'affaire doit être positif ou nul
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="d-flex gap-2 mt-4">
+      <button 
+        type="submit" 
+        class="btn btn-primary" 
+        [disabled]="submitting || !selectedCreditType"
+      >
+        <span *ngIf="submitting" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+        Créer le crédit
+      </button>
+      <a 
+        [routerLink]="clientId ? ['/clients', clientId, 'credits'] : ['/credits']" 
+        class="btn btn-secondary"
+      >
+        Annuler
+      </a>
+    </div>
+  </form>
+</div> 

@@ -1,0 +1,119 @@
+<div class="container mt-4">
+  <div class="row">
+    <div class="col-md-8 offset-md-2">
+      <div class="card">
+        <div class="card-header">
+          <h2>{{ isEditMode ? 'Modifier' : 'Créer' }} un Remboursement</h2>
+        </div>
+        <div class="card-body">
+          <!-- Loading spinner -->
+          <div *ngIf="loading" class="text-center">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Chargement...</span>
+            </div>
+          </div>
+
+          <!-- Error message -->
+          <div *ngIf="error" class="alert alert-danger">
+            {{ error }}
+          </div>
+
+          <!-- Form -->
+          <form [formGroup]="remboursementForm" (ngSubmit)="onSubmit()" *ngIf="!loading">
+            <!-- Credit selection -->
+            <div class="mb-3">
+              <label for="creditId" class="form-label">Crédit</label>
+              <select 
+                id="creditId" 
+                class="form-select" 
+                formControlName="creditId"
+                [ngClass]="{'is-invalid': remboursementForm.get('creditId')?.invalid && remboursementForm.get('creditId')?.touched}"
+              >
+                <option value="">Sélectionnez un crédit</option>
+                <option *ngFor="let credit of credits" [value]="credit.id">
+                  Crédit #{{ credit.id }} - {{ credit.montant | currency:'EUR' }}
+                </option>
+              </select>
+              <div class="invalid-feedback" *ngIf="remboursementForm.get('creditId')?.invalid && remboursementForm.get('creditId')?.touched">
+                Veuillez sélectionner un crédit
+              </div>
+            </div>
+
+            <!-- Amount -->
+            <div class="mb-3">
+              <label for="montant" class="form-label">Montant</label>
+              <div class="input-group">
+                <span class="input-group-text">€</span>
+                <input 
+                  type="number" 
+                  id="montant" 
+                  class="form-control" 
+                  formControlName="montant"
+                  [ngClass]="{'is-invalid': remboursementForm.get('montant')?.invalid && remboursementForm.get('montant')?.touched}"
+                >
+                <div class="invalid-feedback" *ngIf="remboursementForm.get('montant')?.invalid && remboursementForm.get('montant')?.touched">
+                  <span *ngIf="remboursementForm.get('montant')?.errors?.['required']">Le montant est requis</span>
+                  <span *ngIf="remboursementForm.get('montant')?.errors?.['min']">Le montant doit être positif</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Due date -->
+            <div class="mb-3">
+              <label for="dateEcheance" class="form-label">Date d'Échéance</label>
+              <input 
+                type="date" 
+                id="dateEcheance" 
+                class="form-control" 
+                formControlName="dateEcheance"
+                [ngClass]="{'is-invalid': remboursementForm.get('dateEcheance')?.invalid && remboursementForm.get('dateEcheance')?.touched}"
+              >
+              <div class="invalid-feedback" *ngIf="remboursementForm.get('dateEcheance')?.invalid && remboursementForm.get('dateEcheance')?.touched">
+                La date d'échéance est requise
+              </div>
+            </div>
+
+            <!-- Payment status -->
+            <div class="mb-3">
+              <div class="form-check">
+                <input 
+                  type="checkbox" 
+                  id="regle" 
+                  class="form-check-input" 
+                  formControlName="regle"
+                >
+                <label class="form-check-label" for="regle">Remboursement effectué</label>
+              </div>
+            </div>
+
+            <!-- Payment date -->
+            <div class="mb-3" *ngIf="remboursementForm.get('regle')?.value">
+              <label for="datePaiement" class="form-label">Date de Paiement</label>
+              <input 
+                type="date" 
+                id="datePaiement" 
+                class="form-control" 
+                formControlName="datePaiement"
+              >
+            </div>
+
+            <!-- Form actions -->
+            <div class="d-flex justify-content-between">
+              <button type="button" class="btn btn-secondary" routerLink="/remboursements">
+                <i class="bi bi-arrow-left"></i> Retour
+              </button>
+              <button 
+                type="submit" 
+                class="btn btn-primary" 
+                [disabled]="remboursementForm.invalid || loading"
+              >
+                <i class="bi" [ngClass]="isEditMode ? 'bi-save' : 'bi-plus-circle'"></i>
+                {{ isEditMode ? 'Enregistrer' : 'Créer' }}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 
